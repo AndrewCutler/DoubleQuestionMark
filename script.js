@@ -8,13 +8,8 @@ var movePiece = function(source, target) {
   } else return "snapback"
 }
 
-//set up board
-var config = {
-  position: "start",
-  draggable: true,
-  onDrop: movePiece
-}
-var board = ChessBoard("board", config)
+//set up initial board
+var board = ChessBoard("board", "start")
 
 //randomly loaded position
 var position
@@ -30,14 +25,16 @@ fetch("blunders.txt")
     position = blunders[Math.floor(Math.random() * blunders.length)]
   })
 
+//start game
 var startBtn = document.getElementById("start")
 startBtn.addEventListener("click", function() {
   console.log(position)
   var newBlunderPosition = findBlunder(position)
-  loadBlunderPosition(newBlunderPosition.position)
+  loadBlunderPosition(newBlunderPosition)
   console.log(newBlunderPosition.blunder)
 })
 
+// functions to find blunders and load position
 function findBlunder(positionPGN) {
   //finds index of first ?? blunder
   var blunderIndex = positionPGN.search(/\?\?/)
@@ -58,7 +55,23 @@ function findBlunder(positionPGN) {
   return blunderPosition
 }
 
-function loadBlunderPosition(blunder) {
-  chess.load_pgn(blunder)
-  board = ChessBoard("board", chess.fen())
+function loadBlunderPosition(loadedBlunder) {
+  chess.load_pgn(loadedBlunder.position)
+  //calculate side to play
+  var moveNumLength = loadedBlunder.blunder.moveNum.length
+  var whoseTurn =
+    loadedBlunder.blunder.moveNum.substring(
+      moveNumLength - 3,
+      moveNumLength
+    ) === "..."
+      ? "black"
+      : "white"
+  //config for loaded position
+  var config = {
+    orientation: whoseTurn,
+    position: chess.fen(),
+    draggable: true,
+    onDrop: movePiece
+  }
+  board = ChessBoard("board", config)
 }
