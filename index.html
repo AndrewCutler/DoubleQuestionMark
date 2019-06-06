@@ -17,10 +17,40 @@
     <script src="chessboardjs/js/chessboard-0.3.0.min.js"></script>
     <!-- ChessJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
+    <!-- Styling -->
+    <style>
+      body {
+        width: 600px;
+        margin: 18px auto;
+      }
+      #board {
+        margin: auto;
+      }
+      #content {
+        margin: auto;
+        text-align: center;
+      }
+      button {
+        margin: 8px auto;
+        border: none;
+        padding: 6px;
+        background: rgb(190, 134, 94);
+        border-radius: 10%;
+      }
+      button:hover {
+        border: 1px solid rgb(190, 134, 94);
+        background: rgb(223, 178, 147);
+      }
+    </style>
   </head>
   <body>
-    <div id="board" style="width:450px;"></div>
-    <button id="start">Start</button>
+    <div id="container">
+      <div id="board" style="width:450px;"></div>
+      <div id="content">
+        <button id="start">Start</button>
+        <div id="output">Find the blunder!</div>
+      </div>
+    </div>
     <script src="script.js" async defer></script>
   </body>
 </html>

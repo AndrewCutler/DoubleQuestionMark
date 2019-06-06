@@ -24,9 +24,13 @@ var newBlunderPosition
 var movePiece = function(source, target) {
   if (chess.move({ from: source, to: target }) !== null) {
     chess.move({ from: source, to: target })
-    checkMove(chess.history().pop(), newBlunderPosition.blunder.move)
-    console.log(chess.history().pop())
     //call move checker function
+    checkMove(chess.history().pop(), newBlunderPosition.blunder.move)
+    //output answer
+    showAnswer(
+      checkMove(chess.history().pop(), newBlunderPosition.blunder.move)
+    )
+    console.log(chess.history().pop())
   } else return "snapback"
 }
 
@@ -92,11 +96,16 @@ function loadBlunderPosition(loadedBlunder) {
 
 //check if correct blunder is made
 function checkMove(playerMove, correctMove) {
-  if (playerMove === correctMove) console.log("correct")
+  if (playerMove === correctMove) return "Correct!"
+  return "That's not the blunder we're looking for."
 }
 
 //pull random blunder from blunders
 function grabBlunder() {
   position = blunders[Math.floor(Math.random() * blunders.length)]
   return position
+}
+
+function showAnswer(answer) {
+  document.getElementById("output").innerHTML = answer
 }
