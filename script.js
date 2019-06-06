@@ -33,13 +33,32 @@ fetch("blunders.txt")
 var startBtn = document.getElementById("start")
 startBtn.addEventListener("click", function() {
   console.log(position)
-  findBlunder(position)
-  chess.load_pgn(position)
-  board = ChessBoard("board", chess.fen())
+  var newBlunderPosition = findBlunder(position)
+  loadBlunderPosition(newBlunderPosition.position)
+  console.log(newBlunderPosition.blunder)
 })
 
 function findBlunder(positionPGN) {
   //finds index of first ?? blunder
   var blunderIndex = positionPGN.search(/\?\?/)
-  console.log(positionPGN.substr(blunderIndex - 4, 4))
+  //all moves up to/including bluner
+  var prevMoves = positionPGN.substr(0, blunderIndex)
+  //blunder move number and move
+  var prevMoveEndIndex = prevMoves.lastIndexOf("}") + 2
+  var blunderInfo = prevMoves.substr(
+    prevMoveEndIndex,
+    blunderIndex - prevMoveEndIndex
+  )
+  //moves up to/excluding blunder
+  prevMoves = prevMoves.slice(0, prevMoveEndIndex)
+  var blunderData = {}
+  blunderData.moveNum = blunderInfo.split(" ")[0]
+  blunderData.move = blunderInfo.split(" ")[1]
+  var blunderPosition = { blunder: blunderData, position: prevMoves }
+  return blunderPosition
+}
+
+function loadBlunderPosition(blunder) {
+  chess.load_pgn(blunder)
+  board = ChessBoard("board", chess.fen())
 }
