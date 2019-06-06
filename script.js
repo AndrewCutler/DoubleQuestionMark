@@ -4,13 +4,31 @@ var chess = new Chess()
 var board = ChessBoard("board", "start")
 //load blunders file and save to array
 var blunders
+//try again button
+var nextBtn = document.getElementById("tryAgain")
+//is grabbed blunder a capture?
+var validBlunder = false
 
 //start game on click
 var startBtn = document.getElementById("start")
 startBtn.addEventListener("click", function() {
   console.log(position)
-  //move to inside fetch?
-  //   newBlunderPosition = findBlunder(position)
+  loadBlunderPosition(newBlunderPosition)
+  console.log(newBlunderPosition.blunder)
+  startBtn.style.display = "none"
+  nextBtn.style.display = "block"
+})
+
+//load new position
+nextBtn.addEventListener("click", function() {
+  grabBlunder()
+  newBlunderPosition = findBlunder(position)
+  while (!validBlunder) {
+    if (newBlunderPosition.blunder.move.indexOf("x") === -1) {
+      grabBlunder()
+      newBlunderPosition = findBlunder(position)
+    } else validBlunder = true
+  }
   loadBlunderPosition(newBlunderPosition)
   console.log(newBlunderPosition.blunder)
 })
@@ -25,12 +43,16 @@ var movePiece = function(source, target) {
   if (chess.move({ from: source, to: target }) !== null) {
     chess.move({ from: source, to: target })
     //call move checker function
-    checkMove(chess.history().pop(), newBlunderPosition.blunder.move)
-    //output answer
-    showAnswer(
-      checkMove(chess.history().pop(), newBlunderPosition.blunder.move)
+    var moveOutcome = checkMove(
+      chess.history()[chess.history().length - 1],
+      newBlunderPosition.blunder.move
     )
-    console.log(chess.history().pop())
+    //output answer
+    showAnswer(moveOutcome)
+    if (moveOutcome !== "Correct!") {
+      loadBlunderPosition(newBlunderPosition)
+      console.log(chess.history())
+    }
   } else return "snapback"
 }
 
@@ -40,7 +62,6 @@ fetch("blunders.txt")
     blunders = data
     blunders = blunders.split("\n")
     //choose random game where blunder is a capture
-    var validBlunder = false
     grabBlunder()
     newBlunderPosition = findBlunder(position)
     while (!validBlunder) {
