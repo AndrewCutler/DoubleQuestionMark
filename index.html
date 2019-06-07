@@ -49,6 +49,17 @@
         border-radius: 5px;
         display: none;
       }
+      #evalBar {
+        margin: auto;
+        width: 300px;
+        height: 25px;
+        border: 1px solid black;
+      }
+      #black {
+        background: rgb(80, 72, 61);
+        width: 50%;
+        height: 25px;
+      }
     </style>
   </head>
   <body>
@@ -58,6 +69,11 @@
         <button id="start">Start</button>
         <button id="tryAgain">Try another position</button>
         <div id="output">Find the blunder!</div>
+        <div id="eval"></div>
+        <div id="evalBar">
+          <div id="black"></div>
+          <div id="white"></div>
+        </div>
       </div>
     </div>
     <script src="script.js" async defer></script>

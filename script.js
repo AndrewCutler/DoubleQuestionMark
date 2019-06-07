@@ -8,12 +8,18 @@ var blunders
 var startBtn = document.getElementById("start")
 //try next position button
 var nextBtn = document.getElementById("tryAgain")
+//eval field
+var evalDiv = document.getElementById("eval")
 //is grabbed blunder a capture?
 var validBlunder = false
 //randomly loaded position
 var position
 //contains correct move
 var newBlunderPosition
+//regex for evaluation
+var evalRE = /eval\s#*-*\d+\.?\d*]\s}/
+//black eval bar
+var evalBar = document.getElementById("black")
 
 //start game on click
 startBtn.addEventListener("click", function() {
@@ -22,6 +28,7 @@ startBtn.addEventListener("click", function() {
   //   console.log(newBlunderPosition.blunder)
   startBtn.style.display = "none"
   nextBtn.style.display = "block"
+  evalDiv.innerHTML = "Eval before blunder: " + eval.pre
 })
 
 //load new position
@@ -29,6 +36,8 @@ nextBtn.addEventListener("click", function() {
   newPosition()
   validBlunder = false
   loadBlunderPosition(newBlunderPosition)
+  evalDiv.innerHTML = "Eval before blunder: " + eval.pre
+  console.log(eval)
   console.log(newBlunderPosition.blunder)
 })
 
@@ -41,11 +50,8 @@ var movePiece = function(source, target) {
       chess.history()[chess.history().length - 1],
       newBlunderPosition.blunder.move
     )
-    //output answer
     showAnswer(moveOutcome)
-    if (moveOutcome !== "Correct!") {
-      loadBlunderPosition(newBlunderPosition)
-    }
+    moveEvalBar(parseFloat(eval.post))
   } else return "snapback"
 }
 
@@ -67,10 +73,7 @@ function findBlunder(positionPGN) {
   //finds index of first ?? blunder
   var blunderIndex = positionPGN.search(/\?\?/)
   //finds eval after blunder is made
-  var evalRE = /eval\s#*-*\d+\.?\d*]\s}/
-  var postEval = evalRE.exec(positionPGN.substr(blunderIndex + 5, 18))
-  console.log(positionPGN)
-  console.log("####eval: " + postEval[0])
+  findEval(blunderIndex, positionPGN)
   //all moves up to/including bluner
   var prevMoves = positionPGN.substr(0, blunderIndex)
   //blunder move number and move
@@ -112,7 +115,11 @@ function loadBlunderPosition(loadedBlunder) {
 
 //check if correct blunder is made
 function checkMove(playerMove, correctMove) {
-  if (playerMove === correctMove) return "Correct!"
+  if (playerMove === correctMove) {
+    evalDiv.innerHTML = `Eval after blunder: ${eval.post}`
+    // </br>Centipawn change: ${(eval.post - eval.pre).toPrecision(2)}`
+    return "Correct!"
+  }
   return "That's not the blunder we're looking for."
 }
 
@@ -137,7 +144,34 @@ function newPosition() {
       newBlunderPosition = findBlunder(position)
     } else validBlunder = true
   }
+  moveEvalBar(parseFloat(eval.pre))
 }
 
 //find and save evals
-function findEval() {}
+function findEval(blunderIndex, blunderPosition) {
+  //before-blunder eval with junk as string
+  var preEval = evalRE.exec(blunderPosition.substr(blunderIndex - 25, 25))
+  //retrieve number from preEval only
+  preEval = preEval[0].split(" ")[1]
+  //remove closing bracket ] from string
+  preEval = preEval.slice(0, preEval.length - 1)
+  // after-blunder eval with junk as string
+  var postEval = evalRE.exec(blunderPosition.substr(blunderIndex + 5, 18))
+  //retrieve number from val only
+  postEval = postEval[0].split(" ")[1]
+  //remove closing bracket ] from string
+  postEval = postEval.slice(0, postEval.length - 1)
+  //   console.log(blunderPosition)
+  //   console.log("####postEval: " + postEval)
+  //   console.log("####preEval: " + preEval)
+  return (eval = { pre: preEval, post: postEval })
+}
+
+//logic for eval bar
+//eval of 0 means black div width = 50%
+//eval of >= 10 means black div width = 0%
+//eval of <= -10 means black div width = 100%
+function moveEvalBar(evaluation) {
+  var width = evaluation * 5 + 50
+  evalBar.style.width = width + "%"
+}
