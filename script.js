@@ -4,13 +4,18 @@ var chess = new Chess()
 var board = ChessBoard("board", "start")
 //load blunders file and save to array
 var blunders
-//try again button
+//start button
+var startBtn = document.getElementById("start")
+//try next position button
 var nextBtn = document.getElementById("tryAgain")
 //is grabbed blunder a capture?
 var validBlunder = false
+//randomly loaded position
+var position
+//contains correct move
+var newBlunderPosition
 
 //start game on click
-var startBtn = document.getElementById("start")
 startBtn.addEventListener("click", function() {
   console.log(position)
   loadBlunderPosition(newBlunderPosition)
@@ -21,24 +26,21 @@ startBtn.addEventListener("click", function() {
 
 //load new position
 nextBtn.addEventListener("click", function() {
-  grabBlunder()
-  newBlunderPosition = findBlunder(position)
-  while (!validBlunder) {
-    if (newBlunderPosition.blunder.move.indexOf("x") === -1) {
-      grabBlunder()
-      newBlunderPosition = findBlunder(position)
-    } else validBlunder = true
-  }
+  newPosition()
+  validBlunder = false
+  //   grabBlunder()
+  //   newBlunderPosition = findBlunder(position)
+  //   while (!validBlunder) {
+  //     if (newBlunderPosition.blunder.move.indexOf("x") === -1) {
+  //       grabBlunder()
+  //       newBlunderPosition = findBlunder(position)
+  //     } else validBlunder = true
+  //   }
   loadBlunderPosition(newBlunderPosition)
   console.log(newBlunderPosition.blunder)
 })
 
-//randomly loaded position
-var position
-//contains correct blunder move
-var newBlunderPosition
-
-//validate legal moves
+//validate legal moves and check if it's correct
 var movePiece = function(source, target) {
   if (chess.move({ from: source, to: target }) !== null) {
     chess.move({ from: source, to: target })
@@ -51,29 +53,32 @@ var movePiece = function(source, target) {
     showAnswer(moveOutcome)
     if (moveOutcome !== "Correct!") {
       loadBlunderPosition(newBlunderPosition)
-      console.log(chess.history())
     }
   } else return "snapback"
 }
 
+//load games into blunders variable
 fetch("blunders.txt")
   .then(res => res.text())
   .then(data => {
     blunders = data
     blunders = blunders.split("\n")
     //choose random game where blunder is a capture
-    grabBlunder()
-    newBlunderPosition = findBlunder(position)
-    while (!validBlunder) {
-      if (newBlunderPosition.blunder.move.indexOf("x") === -1) {
-        grabBlunder()
-        newBlunderPosition = findBlunder(position)
-      } else validBlunder = true
-    }
+    newPosition()
+    validBlunder = false
+    // grabBlunder()
+    // newBlunderPosition = findBlunder(position)
+    // while (!validBlunder) {
+    //   if (newBlunderPosition.blunder.move.indexOf("x") === -1) {
+    //     grabBlunder()
+    //     newBlunderPosition = findBlunder(position)
+    //   } else validBlunder = true
+    // }
     console.log(position, newBlunderPosition.blunder)
   })
 
-// functions to find blunders and load position
+//   ############### Functions
+//find first blunder in given game PGN
 function findBlunder(positionPGN) {
   //finds index of first ?? blunder
   var blunderIndex = positionPGN.search(/\?\?/)
@@ -94,6 +99,7 @@ function findBlunder(positionPGN) {
   return blunderPosition
 }
 
+//load game to position where blunder is next half move
 function loadBlunderPosition(loadedBlunder) {
   chess.load_pgn(loadedBlunder.position)
   //calculate side to play
@@ -127,6 +133,19 @@ function grabBlunder() {
   return position
 }
 
+//output answer to DOM
 function showAnswer(answer) {
   document.getElementById("output").innerHTML = answer
+}
+
+//load a blunder and show its position
+function newPosition() {
+  grabBlunder()
+  newBlunderPosition = findBlunder(position)
+  while (!validBlunder) {
+    if (newBlunderPosition.blunder.move.indexOf("x") === -1) {
+      grabBlunder()
+      newBlunderPosition = findBlunder(position)
+    } else validBlunder = true
+  }
 }
