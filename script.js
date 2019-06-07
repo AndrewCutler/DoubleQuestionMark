@@ -17,9 +17,9 @@ var newBlunderPosition
 
 //start game on click
 startBtn.addEventListener("click", function() {
-  console.log(position)
+  //   console.log(position)
   loadBlunderPosition(newBlunderPosition)
-  console.log(newBlunderPosition.blunder)
+  //   console.log(newBlunderPosition.blunder)
   startBtn.style.display = "none"
   nextBtn.style.display = "block"
 })
@@ -28,14 +28,6 @@ startBtn.addEventListener("click", function() {
 nextBtn.addEventListener("click", function() {
   newPosition()
   validBlunder = false
-  //   grabBlunder()
-  //   newBlunderPosition = findBlunder(position)
-  //   while (!validBlunder) {
-  //     if (newBlunderPosition.blunder.move.indexOf("x") === -1) {
-  //       grabBlunder()
-  //       newBlunderPosition = findBlunder(position)
-  //     } else validBlunder = true
-  //   }
   loadBlunderPosition(newBlunderPosition)
   console.log(newBlunderPosition.blunder)
 })
@@ -66,15 +58,7 @@ fetch("blunders.txt")
     //choose random game where blunder is a capture
     newPosition()
     validBlunder = false
-    // grabBlunder()
-    // newBlunderPosition = findBlunder(position)
-    // while (!validBlunder) {
-    //   if (newBlunderPosition.blunder.move.indexOf("x") === -1) {
-    //     grabBlunder()
-    //     newBlunderPosition = findBlunder(position)
-    //   } else validBlunder = true
-    // }
-    console.log(position, newBlunderPosition.blunder)
+    // console.log(position, newBlunderPosition.blunder)
   })
 
 //   ############### Functions
@@ -82,6 +66,11 @@ fetch("blunders.txt")
 function findBlunder(positionPGN) {
   //finds index of first ?? blunder
   var blunderIndex = positionPGN.search(/\?\?/)
+  //finds eval after blunder is made
+  var evalRE = /eval\s#*-*\d+\.?\d*]\s}/
+  var postEval = evalRE.exec(positionPGN.substr(blunderIndex + 5, 18))
+  console.log(positionPGN)
+  console.log("####eval: " + postEval[0])
   //all moves up to/including bluner
   var prevMoves = positionPGN.substr(0, blunderIndex)
   //blunder move number and move
@@ -149,3 +138,6 @@ function newPosition() {
     } else validBlunder = true
   }
 }
+
+//find and save evals
+function findEval() {}

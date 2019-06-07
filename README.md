@@ -20,3 +20,4 @@ The positions/games in this repo were taken somewhat randomly from [Lichess](lic
 - styling
 - navigate through game moves
 - lots of logic; for now, validate user move against blunder move and inform user of correct blunder selections
+- optimize finding of candidate blunders? Success rate currently very low
