@@ -44,13 +44,17 @@ nextBtn.addEventListener("click", function() {
 //validate legal moves and check if it's correct
 var movePiece = function(source, target) {
   if (chess.move({ from: source, to: target }) !== null) {
-    chess.move({ from: source, to: target })
+    // chess.move({ from: source, to: target })
     //call move checker function
     var moveOutcome = checkMove(
       chess.history()[chess.history().length - 1],
       newBlunderPosition.blunder.move
     )
     showAnswer(moveOutcome)
+    if (moveOutcome !== "Correct!") {
+      chess.undo()
+      return "snapback"
+    }
     moveEvalBar(eval)
   } else return "snapback"
 }
