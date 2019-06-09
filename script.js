@@ -16,16 +16,16 @@ var validBlunder = false
 var position
 //contains correct move
 var newBlunderPosition
+//value of pre- and post-move evaluation
+var eval
 //regex for evaluation
 var evalRE = /eval\s#*-*\d+\.?\d*]\s}/
 //black eval bar
-var evalBar = document.getElementById("black")
+var blackBar = document.getElementById("black")
 
 //start game on click
 startBtn.addEventListener("click", function() {
-  //   console.log(position)
   loadBlunderPosition(newBlunderPosition)
-  //   console.log(newBlunderPosition.blunder)
   startBtn.style.display = "none"
   nextBtn.style.display = "block"
   evalDiv.innerHTML = "Eval before blunder: " + eval.pre
@@ -51,7 +51,7 @@ var movePiece = function(source, target) {
       newBlunderPosition.blunder.move
     )
     showAnswer(moveOutcome)
-    moveEvalBar(parseFloat(eval.post))
+    moveEvalBar(eval)
   } else return "snapback"
 }
 
@@ -64,7 +64,6 @@ fetch("blunders.txt")
     //choose random game where blunder is a capture
     newPosition()
     validBlunder = false
-    // console.log(position, newBlunderPosition.blunder)
   })
 
 //   ############### Functions
@@ -144,7 +143,12 @@ function newPosition() {
       newBlunderPosition = findBlunder(position)
     } else validBlunder = true
   }
-  moveEvalBar(parseFloat(eval.pre))
+  //set eval bar to preEval width
+  blackBar.style.animation = "none"
+  blackBar.offsetHeight
+  blackBar.style.animation = null
+  blackBar.style.width = 50 - eval.pre * 5 + "%"
+  //moveEvalBar triggers on page load (shouldn't)
 }
 
 //find and save evals
@@ -161,9 +165,9 @@ function findEval(blunderIndex, blunderPosition) {
   postEval = postEval[0].split(" ")[1]
   //remove closing bracket ] from string
   postEval = postEval.slice(0, postEval.length - 1)
-  //   console.log(blunderPosition)
-  //   console.log("####postEval: " + postEval)
-  //   console.log("####preEval: " + preEval)
+  console.log(blunderPosition)
+  console.log("####postEval: " + postEval)
+  console.log("####preEval: " + preEval)
   return (eval = { pre: preEval, post: postEval })
 }
 
@@ -172,6 +176,35 @@ function findEval(blunderIndex, blunderPosition) {
 //eval of >= 10 means black div width = 0%
 //eval of <= -10 means black div width = 100%
 function moveEvalBar(evaluation) {
-  var width = evaluation * 5 + 50
-  evalBar.style.width = width + "%"
+  //set width to 50% at start
+  var preWidth = parseInt(50 - evaluation.pre * 5) + "%"
+  blackBar.style.width = preWidth
+  //calculate new width
+  var postWidth = parseInt(50 - evaluation.post * 5)
+  console.log(parseFloat(blackBar.style.width))
+  console.log(postWidth)
+  //create new animation and add to head
+  var animationStyle = document.createElement("style")
+  animationStyle.type = "text/css"
+  animationStyle.setAttribute("id", "animation")
+  animationStyle.innerHTML = `@keyframes moveBar {
+    0% {width: ${preWidth}%;}
+    100% {width: ${postWidth}%;}
+  }`
+  //remove old animation
+  if (document.getElementById("animation")) {
+    document.head.removeChild(document.getElementById("animation"))
+    //remove animation and retrigger CSS
+    blackBar.style.animation = "none"
+    blackBar.offsetHeight
+    blackBar.style.animation = null
+  }
+  //add animation style tag to head
+  document.head.appendChild(animationStyle)
+  //retrigger animation
+  blackBar.style.animation = "moveBar 1s linear forwards"
 }
+/*to-do: 
+  set max of 10 and min of -10
+  animation doesn't parse mates properly (NaN)
+  */
