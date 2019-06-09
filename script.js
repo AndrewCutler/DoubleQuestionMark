@@ -181,6 +181,10 @@ function moveEvalBar(evaluation) {
   blackBar.style.width = preWidth
   //calculate new width
   var postWidth = parseInt(50 - evaluation.post * 5)
+  //if blunder leads to forced mate
+  if (evaluation.post.indexOf("#") !== -1) {
+    postWidth = 100
+  }
   console.log(parseFloat(blackBar.style.width))
   console.log(postWidth)
   //create new animation and add to head
